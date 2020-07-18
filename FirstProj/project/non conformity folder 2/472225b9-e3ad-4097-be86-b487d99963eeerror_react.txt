@@ -1,0 +1,205 @@
+import React, {Component} from "react"
+import NavPills from "components/NavPills/NavPills.js";
+
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import GridItem from "components/Grid/GridItem.js";
+import { makeStyles } from "@material-ui/core/styles";
+
+import styles from "assets/jss/material-dashboard-pro-react/views/extendedFormsStyle.js";
+//const useStyles = makeStyles(styles);
+// const [multipleSelect, setMultipleSelect] = React.useState([]); 
+// const handleMultiple = event => {setMultipleSelect(event.target.value);};
+const classes = () => {
+    const  useStyles = makeStyles(styles);
+    const classes = useStyles();
+   return ( <div>
+       <MenuItem
+        classes={{ 
+        root: classes.selectMenuItem,
+        selected: classes.selectMenuItemSelectedMultiple
+        }}
+        value="2" >
+        Paris
+    </MenuItem></div>)
+}
+
+const multipleSelect = () => {
+    const   [multipleSelect, setMultipleSelect] = React.useState([]); 
+}
+const handleMultiple = () => {
+    const  handleMultiple = event => {setMultipleSelect(event.target.value);};
+}
+
+class ProgramInitiation extends Component{
+    render(){        
+        return(<div>
+            <NavPills
+            color="warning"
+            tabs={[
+               {
+                    tabButton: "Create Audit",
+                    tabContent: (<div>
+                        <div>
+                            <label>Framework</label>
+                            <GridItem xs={12} sm={6} md={5} lg={5}>
+                                <FormControl
+                                    fullWidth
+                                    className={classes.selectFormControl}>
+                                <InputLabel
+                                    htmlFor="multiple-select"
+                                    className={classes.selectLabel} >
+                                    Choose City
+                                </InputLabel>
+                                <Select
+                                    multiple
+                                    value={multipleSelect()}
+                                    onChange={handleMultiple}
+                                    MenuProps={{ className: classes.selectMenu }}
+                                    classes={{ select: classes.select }}
+                                    inputProps={{
+                                    name: "multipleSelect",
+                                    id: "multiple-select"
+                                }}>
+                                <MenuItem
+                                    disabled
+                                    classes={{ root: classes.selectMenuItem }} >
+                                    Choose City
+                                </MenuItem>
+                                {/* <MenuItem
+                                    classes={{ 
+                                    root: classes.selectMenuItem,
+                                    selected: classes.selectMenuItemSelectedMultiple
+                                    }}
+                                    value="2" >
+                                    Paris
+                                </MenuItem> */
+                                <classes/>}
+                                {/* <MenuItem
+                                    classes={{
+                                    root: classes.selectMenuItem,
+                                    selected: classes.selectMenuItemSelectedMultiple
+                                    }}
+                                    value="3">
+                                    Bucharest
+                                </MenuItem>  */
+                                <classes/>}
+                            </Select>
+                            </FormControl>
+                          </GridItem>
+                          
+                        </div>
+                        <div>
+                             <label>Status</label>
+                        </div>
+                        <div>
+                             <label>Assigned To</label>
+                        </div>
+                        <div>     
+                            <label>Date</label>
+                        </div>
+                        <div>
+                            <label>Criteria of the audit</label>
+                        </div>
+                        <div>
+                            <label>Scope of the audit</label>
+                        </div>
+                        </div>)
+               },
+               {
+                   tabButton: "Files",
+                   tabContent: (<div>    
+                   </div>)
+               },
+               {
+                   tabButton: "Notes",
+                   tabContent: (<div></div>)
+               },
+               {
+                   tabButton:"Settings",
+                   tabContent:(<div></div>)
+               }
+            ]}
+            />
+   
+            </div>
+        )
+    }
+}
+export default ProgramInitiation\=======================
+import React, {Component} from "react"
+import NavPills from "components/NavPills/NavPills.js";
+import Button from "components/CustomButtons/Button.js";
+import { withStyles } from "@material-ui/core/styles";
+import styles from "assets/jss/material-dashboard-pro-react/views/buttonsStyle.js";
+
+import GridItem from "components/Grid/GridItem.js";
+import Table from "components/Table/Table.js";
+import Card from "components/Card/Card.js";
+import CardBody from "components/Card/CardBody.js";
+import { TextField } from "@material-ui/core";
+
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+
+const styless = theme => ({...styles})
+class MandatoryClauses extends Component{
+    render(){
+        const { classes } = this.props;
+        return (<div>
+            <NavPills
+                color="warning"
+                tabs={[
+                    { tabButton:"Audit Perform",tabContent:(<div>
+                    <GridItem xs={12}>
+                        <Card> 
+                        <CardBody>
+                            <Table
+                            coloredColls={[3]}
+                            colorsColls={["primary"]}
+                            tableHeaderColor="primary"
+                            tableHead={["Requiremnet", "Clause", "Testing Steps", "Compliant", "Evidence", "Reference"]}
+                            tableData={[
+                                ["Dakota Rice", "Niger", "Oud-Turnhout", <Select><MenuItem>Yes</MenuItem><MenuItem>No</MenuItem></Select>,
+                                <TextField   type="text" placeholder="Click to add text"></TextField>,
+                                <TextField   type="text" placeholder="Add document number"></TextField>],
+                                ["Minerva Hooper", "Curaçao", "Sinaai-Waas",  <Select><MenuItem>Yes</MenuItem><MenuItem>No</MenuItem></Select>],
+                                ["Sage Rodriguez", "Netherlands", "Baileux", <Select><MenuItem>Yes</MenuItem><MenuItem>No</MenuItem></Select>],
+                                ["Philip Chaney", "Korea South", "Overland Park", <Select><MenuItem>Yes</MenuItem><MenuItem>No</MenuItem></Select>],
+                                ["Doris Greene", "Malawi", "Feldkirchen in Kärnten", <Select><MenuItem>Yes</MenuItem><MenuItem>No</MenuItem></Select>],
+                                ["Mason Porter", "Chile", "Gloucester", <Select><MenuItem>Yes</MenuItem><MenuItem>No</MenuItem></Select>]
+                            ]}
+                            />
+                        </CardBody>
+                        </Card>
+                    </GridItem>
+                </div>)
+                 },
+                 {
+                     tabButton:"Files",
+                     tabContent:(<div>
+                           <Button color="primary" onClick={()=>this.uploadFile()} className={classes.marginRight}>Upload File</Button>
+                           <Button color="primary" onClick={()=>this.newFolder()} className={classes.marginRight}>New Folder</Button>
+                     </div>)
+                 },
+                {
+                    tabButton:"Notes",
+                    tabContent:(<div>
+                         <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                           <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+                    </div>)
+                },{
+                    tabButton:"Settings",
+                    tabContent:(<div>
+
+                    </div>)
+                }
+
+            ]}
+            />
+        </div>)
+    }
+}
+export default withStyles(styless)(MandatoryClauses)

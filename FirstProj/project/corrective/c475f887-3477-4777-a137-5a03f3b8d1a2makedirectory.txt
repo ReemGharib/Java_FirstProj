@@ -1,0 +1,361 @@
+package com.example.FirstProj.PolicyProcedureFile;
+
+import com.example.FirstProj.folder.FolderEntity;
+import com.example.FirstProj.folder.FolderRepository;
+import com.example.FirstProj.folder.FolderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.stream.IntStream;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+
+@RestController
+@RequestMapping("policyprocedures")
+@CrossOrigin(allowedHeaders = "*" , origins = "*")
+public class PolicyProcedureController {
+    @Autowired
+    PolicyProcedureFileService service;
+    @Autowired
+    PolicyProcedureFileRepository repository;
+    @Autowired
+    FolderRepository folderRepository;
+
+    @Autowired
+    FolderService folderService;
+
+    @GetMapping
+    public List<PolicyProcedureFileEntity> getAllPolicyProcedureFiles() {
+        return service.getAllPolicyFile();
+//        return new ResponseEntity<List<PolicyProcedureFileEntity>>(list , new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("getProcedureFile/{id}")
+    public ResponseEntity<PolicyProcedureFileEntity> getProcedureFile(@PathVariable("id") String id) throws Exception {
+        PolicyProcedureFileEntity entity = service.getProcedureEntity(id);
+        return new ResponseEntity<PolicyProcedureFileEntity>(entity, new HttpHeaders(), HttpStatus.OK);
+    }
+
+    @PostMapping("CreateOrUpdateEntity")
+    public ResponseEntity<PolicyProcedureFileEntity> createOrUpdateEntity(@RequestBody PolicyProcedureFileEntity entity) {
+        PolicyProcedureFileEntity fileEntity = service.createOrUpdateEntity(entity);
+        return new ResponseEntity<PolicyProcedureFileEntity>(fileEntity, new HttpHeaders(), HttpStatus.OK);
+    }
+
+    @PostMapping("makeDirectory/{folder_name}")
+    public void createFolder(@PathVariable("folder_name") String folder_name, @RequestBody FolderEntity entity) throws IOException {
+        FolderEntity folder;
+        File file = new File("./" + folder_name);
+        if (!file.exists()) {
+            if (file.mkdir()) {
+                System.out.println("Directory is created!");
+                folder= folderService.addFolder(entity);
+//                Path link = Paths.get("./" + folder_name + "/"); //Symlink
+//                Files.createSymbolicLink(link, Paths.get("hhh"));
+                //path(folder_name);
+
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        }
+    }
+
+    public void path(String folder) throws IOException {
+        Path link = Paths.get("/"+ folder + "/");//Symlink
+        Files.deleteIfExists(link);
+        Files.createSymbolicLink(link, Paths.get(folder));
+    }
+
+    @PostMapping(value = "uploadFileToFolder/{folderName}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PolicyProcedureFileEntity> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable("folderName") String folderName) throws Exception {
+        PolicyProcedureFileEntity newEntity = new PolicyProcedureFileEntity();
+        String my_id = UUID.randomUUID().toString();
+        newEntity.setFileName(my_id + file.getOriginalFilename());
+        newEntity.setId(my_id);
+        newEntity = repository.save(newEntity);
+        File convertFile = new File("./" + folderName + "/" + my_id + file.getOriginalFilename());
+        convertFile.createNewFile();
+        FileOutputStream f_out = new FileOutputStream(convertFile);
+        f_out.write(file.getBytes());
+        f_out.close();
+
+        return new ResponseEntity<PolicyProcedureFileEntity>(newEntity, new HttpHeaders(), HttpStatus.OK);
+    }
+    @GetMapping("/download/{folderName}/{fileName}")
+    public Resource download(@PathVariable("folderName")String folderName, @PathVariable("fileName")String fileName)throws Exception{
+        Path path = Paths.get("." , folderName ,  fileName);
+        UrlResource resource = null;
+        try{
+            resource = new UrlResource(path.toUri());
+        }catch (NoSuchElementException e){
+            throw new Exception("noo");
+        }
+
+        return resource;
+    }
+
+//    @GetMapping("/download/{folderName}/{fileName}")
+//    public Path createTextFile() throws IOException {
+//        byte[] content = IntStream.range(0, 10000)
+//                .mapToObj(i -> i + System.lineSeparator())
+//                .reduce("", String::concat)
+//                .getBytes(StandardCharsets.UTF_8);
+//        Path link = Paths.get("","hhh").resolve("reactJS.txt");
+//        Files.write(link, content, CREATE);
+//        return link;
+//    }
+//    @GetMapping("download")
+//    public void createSymbolicLink() throws IOException {
+//        Path target = createTextFile();
+//        Path link = Paths.get(".","hhh").resolve("reactJS.txt");
+//
+//        Files.createLink(link,target);
+//    }
+
+//    public void printLinkFiles(Path path) throws IOException {
+//        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+//            for (Path file : stream) {
+//                if (Files.isDirectory(file)) {
+//                    printLinkFiles(file);
+//                } else if (Files.isSymbolicLink(file)) {
+//                    System.out.format("File link '%s' with target '%s' %n", file, Files.readSymbolicLink(file));
+//                }
+//            }
+//        }
+//    }
+
+    @PostMapping("/download/{folderName}/{fileName}")
+    public void path(@PathVariable("folderName")String folderName, @PathVariable("fileName")String fileName)throws Exception{
+        Path link = Paths.get(".","hhh").resolve("imgg.jpg"); //Symlink
+        System.out.println(Files.exists(link));
+        Files.deleteIfExists(link);
+
+        Files.createSymbolicLink(link, Paths.get("hhh"));
+       // System.out.println(Files.createSymbolicLink(link, Paths.get("hhh"))); //hhh
+        System.out.println("success");
+    }
+}
+==============================================
+package com.example.FirstProj.folder;
+
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+
+@RestController
+@RequestMapping("folder")
+@CrossOrigin(allowedHeaders = "*" , origins = "*")
+public class FolderController {
+    @Autowired
+    FolderService service;
+    @Autowired
+    FolderRepository repository;
+    @Autowired
+    ApplicationContext applicationContext;
+
+    @Autowired
+    ServletContext context;
+
+
+    @GetMapping
+    public List<FolderEntity> getAll(){
+        List<FolderEntity> list=service.getAll();
+        return list;
+    }
+    @GetMapping("getFolder/{id}")
+    public FolderEntity getFolder(@PathVariable("id")String id)throws Exception{
+        FolderEntity entity=service.getFolder(id);
+
+        return entity;
+    }
+    @PostMapping("addFolder")
+    public  FolderEntity addFolder(@RequestBody FolderEntity entity)throws Exception{
+        FolderEntity folder=service.addFolder(entity);
+        return folder;
+    }
+    @GetMapping("getAllByType/{type}")
+    public List<FolderEntity> getAllByType(@PathVariable("type") String type)throws Exception{
+        List<FolderEntity> list=service.getAllFolderType(type);
+        return list;
+    }
+    @GetMapping("checkFolderExists/{folderName}")
+    public String check(@PathVariable("folderName") String folderName)throws Exception {
+        List<FolderEntity> folderEntity;
+        File file = new File("./" + folderName);
+        try{
+            folderEntity = repository.findByFolderName(folderName);
+        }catch (NoSuchElementException e){
+            throw new Exception("is not exists in db");
+        }
+        if(!file.exists()){
+            repository.deleteAll(folderEntity);
+            return "deleted";
+        }
+        else{
+            return "is exists";
+        }
+    }
+
+    @GetMapping("/listFiles/{dir}")
+    public Set<String> listFilesUsingDirectoryStream(@PathVariable("dir")String dir) throws IOException {
+        Set<String> fileList = new HashSet<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
+            for (Path path : stream) {
+                if (!Files.isDirectory(path)) {
+                    fileList.add(path.getFileName()
+                            .toString());
+                }
+            }
+        }
+        return fileList;
+    }
+    @DeleteMapping("deleteFolder/{id}")
+    public void delete(@PathVariable("id") String id)throws Exception{
+        service.delete(id);
+    }
+
+}
+==============================================================================
+package com.example.FirstProj.folder;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="folder")
+public class FolderEntity {
+    @Id
+    @Column(name="id")
+    String id;
+    @Column(name="folder_name")
+    String folderName;
+    @Column(name="folder_type")
+    String folderType;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
+
+    public void setFolderType(String folderType) {
+        this.folderType = folderType;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public String getFolderType() {
+        return folderType;
+    }
+}
+==============
+package com.example.FirstProj;
+
+import com.example.FirstProj.PolicyProcedureFile.PolicyProcedureController;
+import com.example.FirstProj.folder.FolderEntity;
+import com.example.FirstProj.folder.FolderRepository;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+@Configuration
+
+@EnableAutoConfiguration
+public class MvcConfig implements WebMvcConfigurer {
+    @Autowired
+    FolderRepository folderRepository;
+    @Autowired
+    PolicyProcedureController policyProcedureController ;
+
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+////        List<FolderEntity> folderEntityList = folderRepository.findAll();
+////        for (int i = 0; i < folderEntityList.size(); i++) {
+////            registry.addResourceHandler("/" + folderEntityList.get(i).getFolderName() + "/**")
+////                    .addResourceLocations("/resources", "file:" + folderEntityList.get(i).getFolderName() + "/").setCachePeriod(0);
+////            System.out.println("folder name ----" + folderEntityList.get(i).getFolderName());
+////
+////        }
+//
+//    }
+//    public void path(String folder)throws Exception{
+//        Path link = Paths.get("/" + folder + "/"); //Symlink
+//        Files.deleteIfExists(link);
+//        Files.createSymbolicLink(link, Paths.get(folder));
+//        System.out.println(link);
+//    }
+}
+===
+//    @GetMapping("/download/{folderName}/{fileName}")
+//    public Resource download(@PathVariable("folderName")String folderName, @PathVariable("fileName")String fileName)throws Exception{
+//        Path path = Paths.get("." , folderName ,  fileName);
+//        UrlResource resource = null;
+//        try{
+//            resource = new UrlResource(path.toUri());
+//        }catch (NoSuchElementException e){
+//            throw new Exception("noo");
+//        }
+//
+//        return resource;
+//    }
+
+
+//
+//
+//    @PostMapping("/download/{folderName}/{fileName}")
+//    public void path(@PathVariable("folderName")String folderName, @PathVariable("fileName")String fileName)throws Exception{
+//        Path link = Paths.get(".","hhh").resolve("imgg.jpg"); //Symlink
+//        System.out.println(Files.exists(link));
+//        Files.deleteIfExists(link);
+//
+//        Files.createSymbolicLink(link, Paths.get("hhh"));
+//       // System.out.println(Files.createSymbolicLink(link, Paths.get("hhh"))); //hhh
+//        System.out.println("success");
+//    }

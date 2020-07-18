@@ -1,0 +1,2272 @@
+import React from "react"
+import {Component} from "react"
+import NavPills from "components/NavPills/NavPills.js";
+import Button from "components/CustomButtons/Button.js";
+import { withStyles } from "@material-ui/core/styles";
+import styles from "assets/jss/material-dashboard-pro-react/views/buttonsStyle.js";
+import GridContainer from "components/Grid/GridContainer";
+import GridItem from "components/Grid/GridItem";
+import CustomInput from "components/CustomInput/CustomInput.js";
+import SweetAlert from "react-bootstrap-sweetalert";
+import Card from "components/Card/Card.js";
+import CardBody from "components/Card/CardBody.js";
+import axios from 'axios';
+
+
+// <GridItem xs={12} sm={12} md={3}>
+// <Card>
+//   <CardBody>
+//     <div className={classes.center}>
+//       <h5>Modal window with input field</h5>
+//       <Button color="rose" onClick={this.inputAlert}>
+//         Try me!
+//       </Button>
+//     </div>
+//   </CardBody>
+// </Card>
+// </GridItem>
+
+
+// const inputAlert = () => {
+//     setAlert(
+//       <SweetAlert
+//         input
+//         showCancel
+//         style={{ display: "block", marginTop: "-100px" }}
+//         title="Input something"
+//         onConfirm={e => {
+//           inputConfirmAlertNext(e);
+//         }}
+//         onCancel={() => hideAlert()}
+//         confirmBtnCssClass={classes.button + " " + classes.info}
+//         cancelBtnCssClass={classes.button + " " + classes.danger}
+//       />
+//     );
+//   };
+
+// const inputConfirmAlertNext = e => {
+//     setAlert(e);
+//     setTimeout(() => {
+//       setAlert(
+//         <SweetAlert
+//           style={{ display: "block", marginTop: "-100px" }}
+//           onConfirm={() => hideAlert()}
+//           onCancel={() => hideAlert()}
+//           confirmBtnCssClass={classes.button + " " + classes.info}
+//           title={
+//             <p>
+//               You entered: <b>{e}</b>
+//             </p>
+//           }
+//         />
+//       );
+//     }, 200);
+//   };
+
+// const hideAlert = () => {
+//     setAlert(null);
+//   };
+
+// const [alert, setAlert] = React.useState(null);
+const styless = theme => ({...styles})
+
+class PoliciesAndProcedures extends Component{
+    constructor(){
+        super()
+        this.state = {
+            selectedFile : null,  
+            id: '',
+            folderName:'',
+            date: new Date(),
+            notes: '',
+            dateStamp: new Date(),
+            setAlert: null,
+            API_BASE_URL: 'http://localhost:8080/PolicyProcedureNote',
+            API_BASE_URL_FILE:'http://localhost:8080/policyprocedures/'
+        
+        };
+        this.handleChange = this.handleChange.bind(this)
+        this.onFileChangeHandler = this.onFileChangeHandler.bind(this)
+    }
+    handleChange = (e) => {
+        this.setState({
+            [e.target.name]: e.target.value
+        })   
+    }
+    onFileChangeHandler = (e) => {
+        e.preventDefault();
+         this.setState({
+             selectedFile: e.target.files[0]
+         });
+    };
+    componentDidMount(){
+    }
+    submit(){
+        let noteEntity = {id: this.state.id, notes: this.state.notes, date: this.state.date, dateStamp: this.state.dateStamp};
+        axios.post("" + this.state.API_BASE_URL + "/newNote", noteEntity).then((response) =>{
+            if(response.ok){
+                 console.log(response.data)
+            }else{
+                alert("failed to post")
+            }
+        })
+    }
+    // uploadFile(){
+    //     const formData = new FormData();
+    //     formData.append('file', this.state.selectedFile);
+    //     axios.post(this.state.API_BASE_URL_FILE + "upload", formData).then((response) => {
+    //             alert("succes")
+    //     }).then((error) => {
+    //         alert("Failed to connect")
+    //     })
+    // }
+    createFolder(){
+        axios.post(this.state.API_BASE_URL_FILE + "/makeDirectory/" +this.state.folderName).then((res)=>{
+            alert("succes")
+        })
+    }
+    Done(){
+        const data = new FormData();
+        data.append('file', this.state.selectedFile);
+        axios.post(this.state.API_BASE_URL_FILE + "uploadFileToFolder/" + this.state.folderName, data).then((response) => {
+                alert("succes")
+        })
+        console.log(this.state.folderName)
+    }
+     inputAlert(){
+        this.state.setAlert(
+          <SweetAlert
+            input
+            showCancel
+            style={{ display: "block", marginTop: "-100px" }}
+            title="Input something"
+            onConfirm={e => {this.inputConfirmAlertNext(e);} }
+            onCancel={this.hideAlert()}
+           // confirmBtnCssClass={this.classes.button + " " + classes.info}
+            //cancelBtnCssClass={this.classes.button + " " + classes.danger}
+          />
+        );
+      };
+
+ inputConfirmAlertNext (e){
+    this.state.setAlert(e);
+    setTimeout(() => {
+        this.setState({
+            setAlert: (
+                <SweetAlert
+                  style={{ display: "block", marginTop: "-100px" }}
+                  onConfirm={this.hideAlert()}
+                  onCancel={this.hideAlert()}
+                 // confirmBtnCssClass={classes.button + " " + classes.info}
+                  title={
+                    <p>
+                      You entered: <b>{e}</b>
+                    </p>
+                  }
+                />
+              )
+        })
+    }, 200);
+  };
+
+ hideAlert(){
+    this.state.setAlert(null);
+  };
+    render(){
+        const { classes } = this.props;
+        return(
+            <div>
+               <NavPills
+               color="warning"
+               tabs={[
+                   {
+                       tabButton:"Files",
+                       tabContent:(<div>                       
+                            <br></br>
+                            {/* <Button color="primary" onClick={()=>this.uploadFile()} className={classes.marginRight}>upload file</Button> */}
+                           
+                                    {/* <input type="text" name="folderName" onChange={this.handleChange}/> */}
+                               
+                                    // <GridItem xs={12} sm={12} md={3}>
+                                    // <Card>
+                                    //   <CardBody>
+                                    //     <div className={classes.center}>
+                                    //       <h5>Modal window with input field</h5>
+                                    //       <Button color="rose" onClick={this.inputAlert}>
+                                    //         Try me!
+                                    //       </Button>
+                                    //     </div>
+                                    //   </CardBody>
+                                    // </Card>
+                                    // </GridItem>
+                                                                    <br></br>
+                                    <Button color="primary" onClick={()=>this.createFolder()} className={classes.marginRight}>create folder</Button>
+                                <br></br>
+                                <label>Upload Your File </label>
+                                <input type="file"  name="file"  onChange={this.onFileChangeHandler}/>
+                                <br></br>
+                                <Button color="primary" onClick={()=>this.Done()} className={classes.marginRight}>Done</Button>
+                           
+                           </div>)
+                   },
+                   {
+                       tabButton:"Notes",
+                       tabContent:(<div>
+                           <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                           <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+                           <div>
+                               <form>
+                               <GridContainer>
+                                   <GridItem xs={12} sm={6}>
+                                       Note : 
+                                   </GridItem>
+                                   <GridItem xs={12} sm={6} md={5} lg={5}>  
+                                   <textarea 
+                                        className="form-control"   
+                                        name="notes"
+                                        rows={6} cols={50} 
+                                        value={this.state.note} 
+                                        onChange={this.handleChange} />
+                                   </GridItem>
+                               </GridContainer>
+                               <GridContainer>
+                                   <GridItem xs={12} sm={6}>
+                                       Date : 
+                                   </GridItem>
+                                   <GridItem xs={12} sm={6} md={5} lg={5}>
+                                   <CustomInput
+                                        id="date"
+                                        
+                                        formControlProps={{
+                                        fullWidth: true,
+                                        value:this.state.date, //also we can write it as value="this.state.date"
+                                        onChange:this.handleChange,
+                                        
+                                        }}
+                                        inputProps={{
+                                        type: "text",
+                                        name: "date"
+                                        }}                                                                          
+                                    />
+                                   </GridItem>
+                               </GridContainer>
+                               <GridContainer>
+                                   <GridItem xs={12} sm={6} >
+                                       DateStamp : 
+                                   </GridItem>
+                                   <GridItem xs={12} sm={6} md={5} lg={5}>
+                                   <CustomInput
+                                        id="dateStamp"
+                                        formControlProps={{
+                                        fullWidth: true,
+                                        value:this.state.date, //also we can write it as value="this.state.date"
+                                        onChange:this.handleChange, 
+                                        }}
+                                        inputProps={{
+                                        type: "text",
+                                        name: "dateStamp"
+                                        }}                                                                          
+                                    />
+                                   </GridItem>             
+                               </GridContainer>
+                               <GridContainer>
+                                   <GridItem>
+                                   <Button color="primary" onClick={()=>this.submit()} className={classes.marginRight}>Add</Button>
+                                   </GridItem>
+                               </GridContainer>
+                               </form>
+                           </div>
+                           </div>)
+                   },
+                   {
+                       tabButton:"Settings",
+                       tabContent:(<div></div>)
+                   }
+               ]}
+               />
+            </div>
+        )
+    }
+}
+export default withStyles(styless)(PoliciesAndProcedures)
+==================================================================================================================
+import React, {Component} from "react"
+import NavPills from "components/NavPills/NavPills.js";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import GridItem from "components/Grid/GridItem.js";
+import { withStyles } from "@material-ui/core/styles";
+import Button from "components/CustomButtons/Button.js";
+import styles from "assets/jss/material-dashboard-pro-react/views/extendedFormsStyle.js";
+import GridContainer from "components/Grid/GridContainer";
+
+import axios from 'axios';
+                        
+// const useStyles = withStyles(styles);
+// const classes = useStyles()
+// [multipleSelect, setMultipleSelect] = React.useState([]); 
+//           handleMultiple = event => {setMultipleSelect(event.target.value);};
+const styless = theme => ({...styles})
+
+class ProgramInitiation extends Component{
+    constructor(){
+        super()
+        this.state = {
+          simpleSelect: '',
+          simpleSelect2: [],
+          simpleSelect3: [],
+          array_program: [],
+          id: '',
+          framework:'',
+          status:'',
+          date: new Date(),
+          criteriaOfAudit: '',
+          scopeOfAudit: '',
+          dateStamp: new Date(),
+          programAssignedToEntity: [],
+          options:[],
+          assignedProgram:[],
+          API_BASE_URL: 'http://localhost:8080/ProgramInitiation',
+
+        }
+       this.onFileChangeHandler = this.onFileChangeHandler.bind(this)
+       this.handleSimple = this.handleSimple.bind(this)
+       this.createAudit = this.createAudit.bind(this)
+    }
+    handleSimple(e){ 
+        this.setState({
+             [e.target.name]: e.target.value
+        })
+    }
+
+    componentDidMount(){
+        axios.get(this.state.API_BASE_URL).then((res) => {
+            let program = res.data;
+            console.log(res.data)
+            this.setState({
+                 array_program: program,
+                 programAssignedTo: program.programAssignedToEntity,
+                 
+            })
+            let newArr = [];
+            res.data.map((item)=>{
+                newArr.push({value:item.id,label:item.framework})
+            })
+            let myArray = [];
+            res.data.map((item)=>{
+                myArray.push({value:item.programAssignedToEntity.id,label:item.programAssignedToEntity.firstName})
+            })
+            this.setState({
+                options:newArr,
+                assignedProgram: myArray
+            })
+            console.log(this.state.options)
+        })
+
+        
+    }
+
+    onFileChangeHandler = (e) => {
+        e.preventDefault();
+         this.setState({
+             selectedFile: e.target.files[0]
+         });
+        const formData = new FormData();
+        formData.append('file', this.state.selectedFile);
+        fetch('http://localhost:8080/ProgramInitiationFile/upload', {
+            method: 'POST',
+            body: formData
+        }).then(res => {
+            if(res.ok) {
+                console.log(res.data);
+                alert("File uploaded successfully.")
+            }
+            else{
+                alert("Failed.")
+            }
+        })
+    };
+    createAudit = (e) => {
+         e.preventDefault();
+         console.log(this.state.simpleSelect3)
+          let programInitiation={id: this.state.id, framework:this.state.simpleSelect, status:this.state.simpleSelect2, date:this.state.status, criteriaOfAudit:this.state.criteriaOfAudit, scopeOfAudit:this.state.scopeOfAudit, dateStamp:this.state.dateStamp}
+          axios.post("" + this.state.API_BASE_URL + "/addProgramInitiation/" + this.state.simpleSelect3, programInitiation).then((response) => {
+                 alert("success")
+              
+          })
+        alert(this.state.scopeOfAudit +" " + this.state.criteriaOfAudit + this.state.simpleSelect3)
+    }
+    newFolder(){
+        console.log('newFolder')
+    }
+    addItem(){
+        console.log('addItem')
+    }
+    newNote(){
+        console.log('newNote')
+    }
+    render(){        
+        const { classes } = this.props;
+        const list_framework = this.state.options.map((item) =>
+        <MenuItem
+            value={item.label}
+            classes={{ root: classes.selectMenuItem, selected: classes.selectMenuItemSelected}} >  
+            {item.label}
+        </MenuItem>
+        );
+       
+        const list_status = this.state.array_program.map((item, i) =>
+        <MenuItem 
+            value={item.label} 
+            classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} >  
+            {item.status}
+        </MenuItem>
+        );
+      
+        const assignedto_list = this.state.assignedProgram.map((item) =>
+        <MenuItem 
+            value={item.value}
+            classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} 
+             >
+            {item.label}
+        </MenuItem>);
+
+        return(<div>
+            <NavPills
+            color="warning"
+            tabs={[
+               {
+                    tabButton: "Create Audit",
+                    tabContent: (<div>
+                        
+                        <GridContainer>
+                            <GridItem xs={12} sm={12}>
+                                        <form>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6}> Framework</GridItem>
+                                                <GridItem xs={12} sm={6} md={5} lg={5}>
+                                                
+                                                        <FormControl
+                                                            fullWidth
+                                                            className={classes.selectFormControl}>
+                                                            <InputLabel
+                                                                htmlFor="simple-select" className={classes.selectLabel}>choose 
+                                                                </InputLabel>
+                                                                <Select
+                                                                 MenuProps={{ className: classes.selectMenu }}
+                                                              
+                                                                 classes={{select: classes.select}}
+                                                                 value={this.state.simpleSelect}
+                                                                 onChange={this.handleSimple}
+                                                                 options={this.state.options}    
+                                                                  inputProps={{
+                                                                    name: "simpleSelect",
+                                                                    id: "assignedTo_select"
+                                                                   }}  
+                                                                 
+                                                                  >    
+                                                                <MenuItem 
+                                                                    value="2"
+                                                                    classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} 
+                                                                     >
+                                                                    frameworkkk_oneeee
+                                                                </MenuItem>
+                                                                <MenuItem 
+                                                                    onChange={this.change}
+                                                                    value="3"
+                                                                    classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} 
+                                                                     >
+                                                                    frameworkkkkk_twooo
+                                                                </MenuItem>
+                                                            </Select>
+                                                        </FormControl>
+                                                </GridItem>
+                                            </GridContainer>
+
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6}> Status</GridItem>
+                                                <GridItem xs={12} sm={6} md={5} lg={5}>
+                                                
+                                                        <FormControl
+                                                            fullWidth
+                                                            className={classes.selectFormControl}>
+                                                            <InputLabel
+                                                                htmlFor="simple-select" className={classes.selectLabel}>choose 
+                                                                </InputLabel>
+                                                                <Select
+                                                                MenuProps={{ className: classes.selectMenu }}
+                                                                classes={{select: classes.select}}
+                                                                value={this.state.simpleSelect2}
+                                                                onChange={this.handleSimple}
+                                                                inputProps={{name: "simpleSelect2",id: "status_select" }} >
+                                                                <MenuItem  disabled classes={{ root: classes.selectMenuItem }} ></MenuItem>
+                                                                
+                                                                <MenuItem 
+                                                                    
+                                                                    value="2"
+                                                                    classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} 
+                                                                     >
+                                                                    status_one
+                                                                </MenuItem>
+                                                                <MenuItem 
+                                                                    onChange={this.change}
+                                                                    value="3"
+                                                                    classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} 
+                                                                     >
+                                                                    status_two
+                                                                </MenuItem>
+                                                            </Select>
+                                                        </FormControl>
+                                                </GridItem>
+                                            </GridContainer>
+
+
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6}>Assigned to</GridItem>
+                                                <GridItem xs={12} sm={6} md={5} lg={5}>
+                                                <FormControl
+                                                    fullWidth
+                                                    className={classes.selectFormControl}>
+                                                    <InputLabel
+                                                    htmlFor="simple-select" className={classes.selectLabel}>
+                                                    </InputLabel>
+                                                    <Select
+                                                    MenuProps={{
+                                                        className: classes.selectMenu
+                                                      }}
+                                                      classes={{
+                                                        select: classes.select
+                                                      }}
+                                                      value={this.state.simpleSelect3}
+                                                      onChange={this.handleSimple}
+                                                      inputProps={{
+                                                        name: "simpleSelect3",
+                                                        id: "assignedTo_select"
+                                                      }} >
+                                                          {assignedto_list}
+
+                                                    
+                                                    </Select>
+                                                </FormControl>
+                                                </GridItem> */}
+                                    </GridContainer> 
+                                            
+                                            <GridContainer>
+                                            <GridItem xs={12} sm={6}>Date</GridItem><GridItem xs={12} sm={6}>Date icon</GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6}> 
+                                                Criteria of the audit
+                                                </GridItem>
+                                                <GridItem xs={12} sm={6}>
+                                                <textarea className="form-control" name="criteriaOfAudit"  onChange={this.handleSimple} rows={6} cols={50}/>
+                                                </GridItem>
+                                            </GridContainer>
+
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6}>Scope of the audit</GridItem>
+                                                <GridItem xs={12} sm={6}>
+                                                <textarea className="form-control"  name="scopeOfAudit" onChange={this.handleSimple}  rows={6} cols={50}/>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem>Delete item</GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem>
+                                                <Button color="primary" onClick={this.createAudit} className={classes.marginRight}>Create Audit</Button>
+                                                </GridItem>
+                                            </GridContainer>
+                                        </form>                                 
+                            </GridItem>
+                        </GridContainer>
+                </div>
+                )
+               },
+               {
+                   tabButton: "Files",
+                   tabContent: (<div> 
+                           <input type="file" className="form-control" name="file" multiple onChange={this.onFileChangeHandler}/>
+                           <Button color="primary" onClick={()=>this.newFolder()} className={classes.marginRight}>New Folder</Button>   
+                   </div>)
+               },
+               {
+                   tabButton: "Notes",
+                   tabContent: (<div>
+                         <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                         <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+                   </div>)
+               },
+               {
+                   tabButton:"Settings",
+                   tabContent:(<div>
+                   </div>)
+               }
+            ]}
+            />
+            </div>
+        )
+    }
+}
+export default withStyles(styless)(ProgramInitiation)
+=================================================================
+import React, {Component} from "react"
+import NavPills from "components/NavPills/NavPills.js";
+import Button from "components/CustomButtons/Button.js";
+import { withStyles } from "@material-ui/core/styles";
+import styles from "assets/jss/material-dashboard-pro-react/views/buttonsStyle.js";
+import axios from 'axios';
+import GridItem from "components/Grid/GridItem.js";
+import Table from "components/Table/Table.js";
+import Card from "components/Card/Card.js";
+import CardBody from "components/Card/CardBody.js";
+import CustomInput from "components/CustomInput/CustomInput.js";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormControl from "@material-ui/core/FormControl";
+
+const styless = theme => ({...styles})
+class MandatoryClause extends Component{
+    constructor(){
+        super()
+        this.state = {
+            simpleSelect: [],
+            selectedFile: '',
+            id:'',
+            requirement: '',
+            clauses: '',
+            testingSteps: '',
+            complaint:'',
+            evidence:'',
+            reference:'',
+            Api_base_url: 'http://localhost:8080/MandatoryClausePerform/',
+            MandatoryClauseObject: [],
+        }
+        this.onFileChangeHandler = this.onFileChangeHandler.bind(this)
+        this.handleSimple= this.handleSimple.bind(this)
+    }
+    handleSimple(e){ 
+        this.setState({
+             simpleSelect: e.target.value
+        })
+    }
+    onFileChangeHandler = (e) => {
+        e.preventDefault();
+         this.setState({
+            selectedFile: e.target.files[0]
+         });
+        const formData = new FormData();
+        formData.append('file', this.state.selectedFile);
+        fetch('http://localhost:8080/MandatoryClauseFile/uploadFile', {
+            method: 'POST',
+            body: formData
+        }).then(res => {
+            if(res.ok) {
+                console.log(res.data);
+                alert("File uploaded successfully.")
+            }
+            else{
+                alert("Failed.")
+            }
+        })
+    };
+    componentDidMount(){
+        axios.get(this.state.Api_base_url).then((res)=>{
+            this.setState({
+                MandatoryClauseObject: res.data,
+            })
+            // let array = [];
+            // res.data.map((item)=>{
+            //     array.push({value:item.id,label:item.requirement})
+            // })
+            // this.setState({
+            //     MandatoryClauseObject: array
+            // })
+            console.log(this.state.MandatoryClauseObject)
+        })
+    }
+    newFolder(){
+        console.log('newFolder')
+    }
+    newNote(){
+        console.log('newNote')
+    }
+    render(){
+        const { classes } = this.props;
+
+        const list_mandatory = this.state.MandatoryClauseObject.map((item) =>
+            // <li key={item.id}>{item.requirement}{item.clauses}</li>
+            // tableData={[
+            //     [item.requirement, item.clauses, item.testingSteps, item.compliant, item.evidence, item.reference]
+            // ]}
+            <tr key={item.id}>
+                <td>{item.requirement}</td>
+                <td>{item.clauses}</td>
+                <td>{item.testingSteps}</td>
+                <td key={item.complaint}>
+                   
+                    <FormControl
+                        fullWidth
+                        className={classes.selectFormControl}>
+                        <InputLabel
+                        htmlFor="simple-select" className={classes.selectLabel}>
+                        </InputLabel>
+                            <Select
+                            MenuProps={{ className: classes.selectMenu}}
+                            classes={{select: classes.select }}
+                            value={this.state.simpleSelect}
+                            onChange={this.handleSimple}
+                            inputProps={{ name: "simpleSelect3", id: "assignedTo_select"}} >
+                    <MenuItem  value="true"  classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}}> Yes</MenuItem>
+                    <MenuItem  value="false"  classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} > No</MenuItem>                                     
+                </Select>
+                       </FormControl>
+                </td>
+                <td key={item.evidence}>  
+                <CustomInput  id="evidence"
+                            formControlProps={{
+                            fullWidth: true,
+                            value:this.state.evidence, //also we can write it as value="this.state.date"
+                            onChange:this.handleChange,}}
+                            inputProps={{type: "text", name: "evidence" }}                                                                          
+                 />
+                </td>
+                <td key={item.reference}> 
+                <CustomInput  id="reference"
+                            formControlProps={{
+                            fullWidth: true,
+                            value:this.state.reference, //also we can write it as value="this.state.date"
+                            onChange:this.handleChange,}}
+                            inputProps={{type: "text", name: "reference" }}                                                                          
+                 />
+                </td>
+            </tr>
+            // <div key={item.id}> {[item.requirement, item.clauses, item.testingSteps, item.compliant, item.evidence, item.reference]}</div>
+            
+        );
+        return (<div>
+            <NavPills
+                color="warning"
+                tabs={[
+                    { tabButton:"Audit Perform",tabContent:(<div>
+                       
+                    {/* <GridItem xs={12}>
+                        <Card> 
+                        <CardBody>
+                          
+                            <Table
+                            coloredColls={[3]}
+                            colorsColls={["primary"]}
+                            tableHeaderColor="primary"
+                            tableHead={["Requiremnet", "Clause", "Testing Steps", "Compliant", "Evidence", "Reference"]}
+                            tableData={[
+                                // {list_mandatory}
+                                // ["Dakota Rice","clause" , "Oud-Turnhout", <Select style={{width: '55px'}}><MenuItem>Yes</MenuItem><MenuItem >No</MenuItem></Select>,
+                                // <TextField   type="text" placeholder="Click to add text"></TextField>,
+                                // <TextField   type="text" placeholder="Add document number"></TextField>],
+                                // ["Minerva Hooper", "Curaçao", "Sinaai-Waas",  <Select style={{width: '55px'}}><MenuItem >Yes</MenuItem><MenuItem>No</MenuItem></Select>],
+                                // ["Sage Rodriguez", "Netherlands", "Baileux", <Select style={{width: '55px'}}><MenuItem >Yes</MenuItem><MenuItem>No</MenuItem></Select>],
+                                // ["Philip Chaney", "Korea South", "Overland Park", <Select style={{width: '55px'}}><MenuItem>Yes</MenuItem><MenuItem>No</MenuItem></Select>]   
+                            ]}
+                            />
+                        </CardBody>
+                        </Card>
+                  
+                  </GridItem> */}
+                  <table width="100%" >
+                      <thead>
+                          <tr>
+                              <th>Requiremnet</th>
+                              <th>Clause</th>
+                              <th>Testing Steps</th>
+                              <th>Compliant</th>
+                              <th>Evidence</th>
+                              <th>Reference</th>
+                          </tr>
+                         
+                      </thead>
+                      {list_mandatory}
+                      <td></td>
+                  </table>
+                  
+                </div>)
+                 },
+                 {
+                     tabButton:"Files",
+                     tabContent:(<div>
+                           <input type="file" className="form-control" name="file" multiple onChange={this.onFileChangeHandler}/>
+                           <Button color="primary" onClick={()=>this.newFolder()} className={classes.marginRight}>New Folder</Button>
+                     </div>)
+                 },
+                {
+                    tabButton:"Notes",
+                    tabContent:(<div>
+                         <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                           <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+                    </div>)
+                },{
+                    tabButton:"Settings",
+                    tabContent:(<div>
+
+                    </div>)
+                }
+
+            ]}
+            />
+        </div>)
+    }
+}
+export default withStyles(styless)(MandatoryClause)
+=============================================================================================
+import React, {Component} from "react"
+import NavPills from "components/NavPills/NavPills"
+import Card from "components/Card/Card";
+import FormLabel from "@material-ui/core/FormLabel";
+import CardBody from "components/Card/CardBody.js";
+import CustomInput from "components/CustomInput/CustomInput.js";
+import Button from "components/CustomButtons/Button.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import GridItem from "components/Grid/GridItem.js";
+import { withStyles } from "@material-ui/core/styles";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormControl from "@material-ui/core/FormControl";
+import Accordion from "components/Accordion/Accordion.js";
+import styles from "assets/jss/material-dashboard-pro-react/views/extendedFormsStyle.js";
+import axios from 'axios';
+
+
+const styless = theme => ({...styles})
+
+class AuditeeComplaints extends Component{
+    constructor(){
+        super()
+        this.state = {
+            simpleSelect : [],
+            selectedFile: '',
+            id: '',
+            status: '',
+            personReported: '',
+            complaintDescription: '',
+            actionForTreating: '',
+            attachments:'a',
+            date: new Date(),
+            dateStamp: new Date(),
+            api_base_url: 'http://localhost:8080/AuditeeComplaint/',
+            assigned_array:[],
+            list_auditee_complaint:[],
+            list_item_id:'',
+        }
+        this.handleChange = this.handleChange.bind(this)
+        this.handleSimple = this.handleSimple.bind(this)
+        this.handleListItem = this.handleListItem.bind(this)
+        this.onFileChangeHandler = this.onFileChangeHandler.bind(this)
+    }
+    onFileChangeHandler = (e) => {
+        e.preventDefault();
+        this.setState({
+            selectedFile: e.target.files[0]
+        });
+        const formData = new FormData()
+        formData.append('file', this.state.selectedFile);
+        fetch('http://localhost:8080/AuditeeComplaintFile/upload', {
+            method: 'POST',
+            body: formData
+        }).then(response =>{
+            if(response.ok){
+                console.log(response.data);
+                alert("File uploaded successfully.")
+            }else{
+                alert("Failed")
+            }
+        })
+    };
+    handleSimple(e){
+       this.setState({
+        simpleSelect:e.target.value
+       })
+    }
+    handleChange(e){
+        this.setState({
+            [e.target.name]:e.target.value
+        })
+       
+    }
+    componentDidMount(){
+        axios.get(this.state.api_base_url).then((res)=>{
+            console.log(res.data)
+            // this.setState({
+            //     list_auditee_complaint:res.data
+            // })
+
+            let array=[]
+            res.data.map((item)=>{
+                array.push({value:item.auditeeComplaintsAssignedToEntity.id,label:item.auditeeComplaintsAssignedToEntity.firstName+item.auditeeComplaintsAssignedToEntity.lastName})
+            })
+            let myArray=[]
+            res.data.map((item)=>{
+                myArray.push({value:item.id,label:item.complaintDescription})
+            })
+            this.setState({
+                assigned_array:array,
+                list_auditee_complaint: myArray
+            })
+
+        })
+    }
+    addAuditeComplaint(){
+        console.log(this.state.status)
+        console.log(this.state.personReported)
+        console.log(this.state.complaintDescription)
+        console.log(this.state.actionForTreating)
+        console.log(this.state.attachments)
+        console.log(this.state.date)
+        console.log(this.state.simpleSelect)
+       
+        let auditComplaint={
+            id:this.state.id,
+            status:this.state.status,
+            person_reported:this.state.personReported,
+            complaintDescription:this.state.complaintDescription,
+            actionForTreating:this.state.actionForTreating,
+            attachments:this.state.attachments,
+            date:this.state.date,
+            dateStamp:this.state.dateStamp
+        }
+
+        axios.post(this.state.api_base_url + "addAuditeeComplaint/"+ this.state.simpleSelect, auditComplaint).then((res)=>{
+            alert("success")
+        })
+    }
+    handleListItem(e){
+        this.setState({
+            list_item_id:e.target.key
+        })
+        console.log(this.state.list_item_id)
+    }
+   
+    newFolder(){
+        console.log('newFolder')
+    }
+    addItem(){
+        console.log('addItem')
+    }
+    newNote(){
+        console.log('newNote')
+    }
+    showContent(){
+        console.log(this.state.divDescription)
+    }
+    render(){
+        const { classes } = this.props;
+       // const data =[{"name":"test1"},{"name":"test2"}];
+        //const listItems = data.map((d) =><Card> <div key={d.name}>{d.name}</div></Card>);
+       
+        const listItems = this.state.list_auditee_complaint.map((item)=>
+        <Card>
+             
+                  
+        </Card>
+        )
+
+        const list_assigned_to = this.state.assigned_array.map((item)=>
+            <MenuItem 
+            classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}}
+            value={item.value}>
+                {item.label}
+            </MenuItem>
+       )
+       return(<div>
+            <NavPills 
+            color="warning"
+            tabs={[
+                {
+                    tabButton:"Complaints",
+                     tabContent:( <div>
+                         <GridContainer>
+                             <GridItem xs={12} sm={12} md={6}>
+                                 <Card>
+                                     <CardBody>
+                                         <form>
+                                            <div>{ listItems }</div>
+                                             {/* <Card><div>Complaint sample number one</div></Card>
+                                             <Card><div>Complaint sample number two</div></Card>
+                                             <Card><div>Complaint sample number one</div></Card>
+                                             <Card><div>Complaint sample number one</div></Card> */}                                    
+                                               {/* <Accordion
+                                                active={0}
+                                                collapses={[
+                                                {
+                                                    title:"",
+                                                    content:"{}"
+                                                }
+                                                ]}
+                                                />   */}
+                                                
+                                                    
+                                                
+                                         </form>
+                                    </CardBody>
+                                 </Card>
+                             </GridItem>
+
+                             <GridItem xs={12} sm={12} md={6}>
+                                 <Card>
+                                   
+                                     <CardBody>
+                                         <form>
+                                             <GridContainer>
+                                                 <GridItem xs={12} sm={12} md={6}>
+                                                     <FormLabel className={classes.labelHorizontal}>Complaint Sample number ...</FormLabel>
+                                                 </GridItem>
+                                             </GridContainer>
+
+                                             <GridContainer >
+                                                 
+                                                 <GridItem xs={6} >
+                                                     <FormLabel className={classes.labelHorizontal}>Status</FormLabel>
+                                                 </GridItem>
+                                                
+                                                 <GridItem xs={6} >
+                                                     <CustomInput id="status" formControlProps={{fullWidth: true,onChange:this.handleChange, value:this.state.status}} inputProps={{type:"text",name:"status"}}/>
+                                                 </GridItem>
+                                                
+                                             </GridContainer>
+
+                                             <GridContainer>
+                                                 <GridItem xs={12} sm={6}>
+                                                     <FormLabel className={classes.labelHorizontal}>Date of Receiving Complaint</FormLabel>
+                                                 </GridItem>
+                                                 <GridItem xs={12} sm={6}>
+                                                    <CustomInput id="date_receiving" formControlProps={{fullWidth: true}} inputProps={{type:"text"}}/>
+                                                 </GridItem>
+                                             </GridContainer>
+
+                                             <GridContainer>
+                                                 <GridItem xs={12} sm={6}>
+                                                     <FormLabel className={classes.labelHorizontal}>Person who reported the complaint</FormLabel>
+                                                 </GridItem>
+                                                 <GridItem xs={12} sm={6}>
+                                                    <CustomInput id="personReported" formControlProps={{fullWidth: true,value:this.state.personReported,onChange:this.handleChange}} inputProps={{type:"text",name:"personReported"}}/>
+                                                 </GridItem>
+                                             </GridContainer>
+                                             <GridContainer>
+                                                 <GridItem>
+                                                    <FormLabel className={classes.labelHorizontal}>Complaint description</FormLabel>
+                                                 </GridItem>
+                                             </GridContainer>
+                                             <GridContainer>
+                                                 <GridItem xs={12} sm={12} >
+                                                 <textarea value={this.state.complaintDescription} onChange={this.handleChange} name="complaintDescription" rows={4} cols={50}></textarea>
+                                                 </GridItem>
+                                             </GridContainer>
+                                             <GridContainer>
+                                                 <GridItem xs={12} sm={6}>
+                                                    <FormLabel className={classes.labelHorizontal}>Assigned to</FormLabel>
+                                                 </GridItem>
+                                                 <GridItem xs={12} sm={6}>
+                                                 <FormControl
+                                                    fullWidth
+                                                    className={classes.selectFormControl}>
+                                                    <InputLabel
+                                                    htmlFor="simple-select" className={classes.selectLabel}>
+                                                    </InputLabel>
+                                                    <Select
+                                                    MenuProps={{ className: classes.selectMenu }}
+                                                    classes={{select: classes.select}}
+                                                    value={this.state.simpleSelect}
+                                                    onChange={this.handleSimple}
+                                                    inputProps={{name: "simpleSelect",id: "simple-select" }} >
+                                                    <MenuItem  disabled classes={{ root: classes.selectMenuItem }} >
+                                                    </MenuItem>
+                                                    {list_assigned_to}
+                                                    </Select>
+                                                </FormControl>
+
+                                                 </GridItem>
+                                             </GridContainer>
+                                             <GridContainer>
+                                                 <GridItem>
+                                                     <FormLabel className={classes.labelHorizontal}>Action for treating the complaint</FormLabel>
+                                                 </GridItem>
+                                             </GridContainer>
+                                             <GridContainer>
+                                                 <GridItem>
+                                                 <textarea value={this.state.actionForTreating} onChange={this.handleChange} name="actionForTreating" rows={4} cols={50}></textarea>
+                                                 </GridItem>
+                                             </GridContainer> 
+                                             {/* <GridContainer>
+                                                 <GridItem>
+                                                    <FormLabel className={classes.labelHorizontal}>Attachments</FormLabel>
+                                                 </GridItem>
+                                             </GridContainer>  */}
+                                             <GridContainer>
+                                                 <GridItem xs={12} sm={12}>
+                                                 <Button fullWidth color="primary" onClick={()=>this.addAuditeComplaint()} className={classes.marginRight}>Add</Button>
+                                                 </GridItem>
+                                             </GridContainer>
+                                                           
+                                         </form>
+                                    </CardBody>
+                                     
+                                 </Card>
+                             </GridItem>
+                         </GridContainer>
+                     </div>
+                      )//tabContent
+                },
+                {
+                    tabButton:"Files",
+                    tabContent:(<div>
+                        <input type="file" className="form-control" name="file" multiple onChange={this.onFileChangeHandler}/>
+                        <Button color="primary" onClick={()=>this.newFolder()} className={classes.marginRight}>New Folder</Button>
+
+                        </div>)
+                },
+                {
+                    tabButton:"Notes",
+                    tabContent:(<div>
+                        <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                           <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+
+                    </div>)
+                },{
+                    tabButton:"Settings",
+                    tabContent:(<div>
+
+                    </div>)
+                }
+            ]}/>
+                
+            
+        </div>)
+    }
+
+}
+export default withStyles(styless)(AuditeeComplaints)
+========================================================================
+import React, {Component} from "react"
+import NavPills from "components/NavPills/NavPills.js";
+import Button from "components/CustomButtons/Button.js";
+import { withStyles } from "@material-ui/core/styles";
+import styles from "assets/jss/material-dashboard-pro-react/views/extendedFormsStyle.js";
+
+import GridItem from "components/Grid/GridItem.js";
+import Card from "components/Card/Card.js";
+import CardBody from "components/Card/CardBody.js";
+import Accordion from "components/Accordion/Accordion.js";
+import CardHeader from "components/Card/CardHeader.js";
+import GridContainer from "components/Grid/GridContainer.js";
+
+import axios from 'axios';
+
+const styless= theme => ({...styles})
+class SecurityControl extends Component{
+    constructor(){
+        super()
+        this.state = {
+            selectedFile: ''
+        }
+        this.onFileChangeHandler = this.onFileChangeHandler.bind(this)
+    }
+    onFileChangeHandler = (e) => {
+        e.preventDefault();
+        this.setState({
+            selectedFile: e.target.files[0]
+        });
+        const formData = new FormData()
+        formData.append('file', this.state.selectedFile);
+        fetch('http://localhost:8080/SecurityControlFile/upload', {
+            method: 'POST',
+            body: formData
+        }).then(response =>{
+            if(response.ok){
+                console.log(response.data);
+                alert("File uploaded successfully.")
+            }else{
+                alert("Failed")
+            }
+        })
+    }
+    newFolder(){
+        console.log('newFolder')
+    }
+    addItem(){
+        console.log('addItem')
+    }
+    newNote(){
+        console.log('newNote')
+    }
+    render(){
+        const { classes } = this.props;
+        return(
+            <div>
+                <NavPills
+                color="warning"
+                tabs={[
+                    {
+                        tabButton:"Perform Audit",
+                        tabContent:(<div>
+                                <GridContainer>
+                                <GridItem xs={12} sm={12} md={14}>
+                                <Card>
+                                    <CardHeader>
+                                    <h4 className={classes.cardTitle}>Collapsible Accordion</h4>
+                                    </CardHeader>
+                                    <CardBody>
+                                    <Accordion
+                                        active={0}
+                                        collapses={[
+                                        {
+                                            title: "Collapsible group Item #1",
+                                            content:""                                   
+
+                                        },
+                                        {
+                                            title: "Collapsible group Item #2",
+                                            content:
+                                            "Anim pariatuid. 3 w quinoa nesciainable VHS."
+                                        }
+                                        ]}
+                                    />
+                                    </CardBody>
+                                </Card>
+                                </GridItem>
+                              </GridContainer>
+                            </div>
+                       )
+                    },
+                    {
+                        tabButton:"Files",
+                        tabContent:(<div>
+                            <input type="file" className="form-control" name="file" multiple onChange={this.onFileChangeHandler}/>
+                            <Button color="primary" onClick={()=>this.newFolder()} className={classes.marginRight}>New Folder</Button>
+                        </div>)
+                    },
+                    {
+                        tabButton:"Notes",
+                        tabContent:(<div>
+                            <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                            <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+                        </div>)
+
+                    },
+                    {
+                        tabButton:"Settings",
+                        tabContent:(<div></div>)
+                    }
+                ]}
+                />
+            </div>
+        )
+    }
+}
+export default withStyles(styless)(SecurityControl)
+===================================================================================================================
+import React, {Component} from "react"
+
+import NavPills from "components/NavPills/NavPills"
+import Card from "components/Card/Card";
+import FormLabel from "@material-ui/core/FormLabel";
+import Button from "components/CustomButtons/Button.js";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import CustomInput from "components/CustomInput/CustomInput.js";
+import InputLabel from "@material-ui/core/InputLabel";
+
+import GridContainer from "components/Grid/GridContainer.js";
+import GridItem from "components/Grid/GridItem.js";
+
+import CardHeader from "components/Card/CardHeader.js";
+import CardFooter from "components/Card/CardFooter.js";
+import FormControl from "@material-ui/core/FormControl";
+
+import { withStyles } from "@material-ui/core/styles";
+import styles from "assets/jss/material-dashboard-pro-react/views/extendedFormsStyle.js";
+import CardBody from "components/Card/CardBody";
+import axios from 'axios';
+
+const styless = theme => ({...styles})
+
+class Nonconformities extends Component{
+    constructor(){
+        super()
+        this.state = {
+            simpleSelect : '',
+            selectedFile: '',
+            id: '',
+            domain: '',
+            clauseNumber: '',
+            reference: '',
+            auditCriteria: '',
+            findings: '',
+            acknowledgmentAuditee: '',
+            identifyingDate: new Date(),
+            dateStamp: new Date(),
+            nonConformityClassification:'',
+            Classification_array:[],
+            api_base_url: 'http://localhost:8080/NonConformity/'
+        }
+        this.handleSimple = this.handleSimple.bind(this)
+        this.handleChange = this.handleChange.bind(this)
+        this.onFileChangeHandler = this.onFileChangeHandler.bind(this)
+    }
+    onFileChangeHandler = (e) =>{
+        e.preventDefault();
+        this.setState({
+            selectedFile: e.target.files[0]
+        });
+       const formData = new FormData();
+       formData.append('file', this.state.selectedFile);
+       fetch('http://localhost:8080/NonconformityFile/upload', {
+           method: 'POST',
+           body: formData
+       }).then(res => {
+           if(res.ok) {
+               console.log(res.data);
+               alert("File uploaded successfully.")
+           }
+           else{
+               alert("Failed.")
+           }
+       })
+    }
+    handleSimple(e){
+       this.setState({
+        simpleSelect:e.target.value
+       })
+    }
+    handleChange(e){
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+    componentDidMount(){
+        axios.get(this.state.api_base_url).then((res)=>{
+            console.log(res.data)
+
+            let array=[]
+            res.data.map((item)=>{         
+                array.push({value:item.id,label:item.nonConformityClassification})
+            })
+            this.setState({
+                Classification_array:array
+            })
+
+        })   
+    }
+    addNonConformity(){
+        console.log(this.state.domain)
+        console.log(this.state.clauseNumber)
+        console.log(this.state.reference)
+        console.log(this.state.auditCriteria)
+        console.log(this.state.findings)
+        console.log(this.state.acknowledgmentAuditee)
+        console.log(this.state.nonConformityClassification)
+        console.log(this.state.simpleSelect)
+
+        let nonConformity={
+            id:this.state.id,
+            domain:this.state.domain,
+            clauseNumber:this.state.clauseNumber,
+            reference:this.state.reference,
+            auditCriteria:this.state.auditCriteria,
+            findings:this.state.findings,
+            acknowledgmentAuditee:this.state.acknowledgmentAuditee,
+            identifyingDate:this.state.identifyingDate,
+            dateStamp:this.state.dateStamp,
+            nonConformityClassification:this.state.nonConformityClassification
+        }
+        axios.post(this.state.api_base_url + "addNonConformity", nonConformity).then((res)=>{
+            alert("success")
+        })
+       
+    }
+    uploadFile(){
+        console.log('Upload File')
+        }
+        newFolder(){
+            console.log('newFolder')
+        }
+        addItem(){
+            console.log('addItem')
+        }
+        newNote(){
+            console.log('newNote')
+        }
+    render(){
+        const { classes } = this.props;
+        const data =[{"name":"test1"},{"name":"test2"}];
+        const listItems = data.map((d) =><Card> <div key={d.name}>{d.name}</div></Card>);
+        const list_classification = this.state.Classification_array.map((item)=>
+            <MenuItem 
+                classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}}
+                value={item.value}>
+                    {item.label}
+            </MenuItem>
+        )
+        return(<div>
+            <NavPills
+            color="warning"
+            tabs={[
+                {
+                    tabButton:"Nonconformities",
+                    tabContent:(<div>
+                        <GridContainer>
+                    <GridItem xs={12} sm={6} >
+                    <Card>
+                      <CardBody>
+                      <Card>
+                    <div>{ listItems }</div>
+                          <div>Nonconformities sample number one</div></Card>
+                           <Card><div>Nonconformities sample number two</div></Card>
+                         <Card><div>Nonconformities sample number one</div></Card>
+                        <Card><div>Nonconformities sample number one</div></Card>
+                                         
+                      </CardBody>
+                    </Card>
+                  </GridItem>
+                  <GridItem xs={12} sm={6} >
+                    <Card>
+                      <CardHeader color="warning" stats icon>
+
+
+                     <form>
+                     <GridContainer>
+
+                        <GridItem xs={12} sm={4}>
+                        <FormLabel className={classes.labelHorizontal}>
+                            Domain/Process
+                        </FormLabel>
+                        </GridItem>
+
+                        <GridItem xs={12} sm={8}>
+                        <CustomInput
+                            id="domain"
+                            formControlProps={{
+                            fullWidth: true,
+                            onChange:this.handleChange,
+                            value:this.state.domain
+                            }}
+                            inputProps={{
+                            type: "text",
+                            name:"domain"
+                            }}
+                            
+                        />
+                        </GridItem> 
+                    </GridContainer>
+
+                    <GridContainer>
+                        <GridItem xs={12} sm={3}>
+                        <FormLabel className={classes.labelHorizontal}>
+                            Clause Number
+                        </FormLabel>
+                        </GridItem>
+                        <GridItem xs={12} sm={3}>
+                            <CustomInput
+                                id="domain_Process-text"
+                                formControlProps={{
+                                fullWidth: true,
+                                onChange:this.handleChange,
+                                value:this.state.clauseNumber
+                                }}
+                                inputProps={{
+                                type: "text",
+                                placeholder: "",
+                                name:"clauseNumber"
+                                }}
+                            
+                            />
+                        </GridItem>
+                        <GridItem xs={12} sm={3}>
+                        <FormLabel className={classes.labelHorizontal}>
+                            Reference
+                        </FormLabel>
+                        </GridItem>
+                        <GridItem xs={12} sm={3}>
+                        <CustomInput
+                            id="reference_text"
+                            formControlProps={{
+                            fullWidth: true,
+                            onChange:this.handleChange,
+                            value:this.state.reference
+                            }}
+                            inputProps={{
+                            placeholder: "",
+                            name:"reference"
+                            }}
+                        />
+                        </GridItem>
+                    </GridContainer>
+
+
+                    
+
+                    <GridContainer>
+                        <GridItem xs={12} sm={3}>
+                        <FormLabel className={classes.labelHorizontal}>
+                            Audit criteria 
+                        </FormLabel>
+                        </GridItem>
+                    </GridContainer>
+
+                    <GridContainer xs={12} sm={6} lg={6} >
+                        <GridItem >
+                        <textarea value={this.state.auditCriteria} onChange={this.handleChange} name="auditCriteria" rows={4} cols={50}></textarea>
+                        </GridItem>
+                    </GridContainer>
+
+                    <GridContainer>
+                        <GridItem xs={12}  sm={3}>
+                        <FormLabel className={classes.labelHorizontal}>
+                            Findings
+                        </FormLabel>
+                        </GridItem>
+                    </GridContainer>
+
+                    <GridContainer xs={12} sm={6} lg={6}>
+                        <GridItem >
+                        <textarea value={this.state.findings} onChange={this.handleChange} name="findings" rows={4} cols={50}></textarea>
+                        </GridItem>
+                    </GridContainer>
+
+                    <GridContainer xs={12}>
+                        <GridItem >
+                        <FormLabel className={classes.labelHorizontal}>
+                        Acknowledgement by Auditee Representative
+                        </FormLabel>
+                        </GridItem>
+                    </GridContainer>
+                    
+                    <GridContainer >
+                        <GridItem xs={12}>
+                        <CustomInput
+                            id="pasAcknowledgements"
+                            formControlProps={{
+                            fullWidth: true,
+                            onChange:this.handleChange,
+                            value:this.state.acknowledgmentAuditee
+                            }}
+                            inputProps={{
+                            type: "text",
+                            name:"acknowledgmentAuditee"
+                            }}
+                        />
+                        </GridItem>
+                    </GridContainer>
+            
+                    <GridContainer>
+                        <GridItem xs={12} sm={6}>
+                            <FormLabel className={classes.labelHorizontal}>
+                                Date of dentifying
+                            </FormLabel>
+                        </GridItem>
+                        <GridItem xs={12} sm={6}>
+                            
+                        </GridItem>
+                    </GridContainer>
+
+                    <GridContainer>
+                        <GridItem xs={12} sm={6}>
+                            <FormLabel className={classes.labelHorizontal}>
+                                Nonconformity Classification
+                            </FormLabel>
+                        </GridItem>
+
+                        <GridItem  xs={12} sm={6}>
+                            <FormControl
+                                fullWidth
+                                className={classes.selectFormControl}>
+                                <InputLabel
+                                htmlFor="simple-select" className={classes.selectLabel}>
+                                </InputLabel>
+                                <Select
+                                MenuProps={{ className: classes.selectMenu }}
+                                classes={{select: classes.select}}
+                                value={this.state.simpleSelect}
+                                onChange={this.handleSimple}
+                                inputProps={{name: "simpleSelect",id: "simple-select" }} >
+                                <MenuItem  disabled classes={{ root: classes.selectMenuItem }} >
+                                </MenuItem>
+                                {list_classification}
+                                </Select>
+                            </FormControl>
+
+                            </GridItem>
+                        </GridContainer>
+                        <GridContainer>
+                            <GridItem>
+                                
+                            </GridItem>
+                        </GridContainer>
+                        <GridContainer>
+                            <GridItem > 
+                            {/* <FormLabel className={classes.labelHorizontal}>
+                               Attachments
+                            </FormLabel> */}
+                            <Button color="primary" onClick={()=>this.addNonConformity()} className={classes.marginRight}>Add</Button>
+                            </GridItem>
+                        </GridContainer> 
+                        </form>
+
+                   </CardHeader>
+                  <CardFooter stats>
+                  </CardFooter>
+                 </Card>
+                </GridItem>
+                </GridContainer>
+                      
+                    </div>)
+                },
+                {
+                    tabButton:"Files",
+                    tabContent:(<div>
+                        <input type="file" className="form-control" name="file" multiple onChange={this.onFileChangeHandler}/>
+                        <Button color="primary" onClick={()=>this.newFolder()} className={classes.marginRight}>New Folder</Button>
+                  </div>)
+
+                },
+                {
+                    tabButton:"Notes",
+                    tabContent:(<div>
+                        <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                        <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+                  </div>)
+                },
+                {
+                    tabButton:"Settings",
+                    tabContent:(<div>
+
+                    </div>)
+                }
+            ]}
+            />
+        </div>)
+    }
+}
+export default withStyles(styless)(Nonconformities)
+==================================================================================================================
+import React, {Component} from "react"
+import NavPills from "components/NavPills/NavPills"
+import Card from "components/Card/Card";
+import FormControl from "@material-ui/core/FormControl";
+import FormLabel from "@material-ui/core/FormLabel";
+import CardBody from "components/Card/CardBody.js";
+import CustomInput from "components/CustomInput/CustomInput.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import GridItem from "components/Grid/GridItem.js";
+import { withStyles } from "@material-ui/core/styles";
+import Button from "components/CustomButtons/Button.js";
+import styles from "assets/jss/material-dashboard-pro-react/views/extendedFormsStyle.js";
+import axios from 'axios';
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+import InputLabel from "@material-ui/core/InputLabel";
+const styless = theme => ({...styles})
+
+class CorrectiveActions extends Component{
+    constructor(){
+        super()
+        this.state = {
+            simpleSelect : [],
+            simpleSelect2:[],
+            selectedFile: '',
+            api_base_url: 'http://localhost:8080/CorrectiveAction/',
+            id:'',
+            status:'',
+            assignedOnDate: new Date(),
+            relatedNonconformities:'',
+            correctiveAction:'',
+            informedImplementedAction: '',
+            relatedCustomerComplaints:'',
+            implementationDeadlineDate:'',
+            reviewedOnDate:new Date(),
+            dateStamp:new Date(),
+            correctiveAssignedToEntity: [],
+            correctiveReviewerEntity: [],
+            assignedList: [],
+            reviewrList: [],
+
+        }
+        this.onFileChangeHandler = this.onFileChangeHandler.bind(this)
+        this.handleSimple = this.handleSimple.bind(this)
+    
+        this.Change = this.Change.bind(this)
+    }
+    handleSimple(e){ 
+        this.setState({
+             [e.target.name]: e.target.value
+        })
+    }
+    Change = (e) =>{
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+    onFileChangeHandler= (e) => {
+        e.preventDefault();
+        this.setState({
+            selectedFile: e.target.files[0]
+        });
+       const formData = new FormData();
+       formData.append('file', this.state.selectedFile);
+       fetch('http://localhost:8080/CorrectiveFileAction/upload', {
+           method: 'POST',
+           body: formData
+       }).then(res => {
+           if(res.ok) {
+               console.log(res.data);
+               alert("File uploaded successfully.")
+           }
+           else{
+               alert("Failed.")
+           }
+       })
+    };
+   
+    componentDidMount(){
+        axios.get(this.state.api_base_url).then((res)=>{
+            console.log(res.data)
+            this.setState({
+
+            })
+            let array = []
+            res.data.map((item)=>{
+                array.push({value:item.correctiveAssignedToEntity.id,label:item.correctiveAssignedToEntity.firstName})
+            })
+            let myArray = []
+            res.data.map((item)=>{
+                myArray.push({value:item.correctiveReviewerEntity.id, label:item.correctiveReviewerEntity.firstName})
+            })
+            this.setState({
+                reviewrList:myArray,
+                assignedList:array
+            })
+        })
+    }
+    newFolder(){
+        console.log('newFolder')
+    }
+    addItem(){
+        console.log('addItem')
+    }
+    newNote(){
+        console.log('newNote')
+    }
+    addCorrectiveAction(){
+        console.log(this.state.status)
+        console.log(this.state.relatedNonconformities)
+        console.log(this.state.correctiveAction)
+        console.log(this.state.informedImplementedAction)
+        console.log(this.state.relatedCustomerComplaints)
+        console.log(this.state.simpleSelect)
+        console.log(this.state.simpleSelect2)
+        let corrective_action={
+            id:this.state.id, status:this.state.status, assignedOnDate:this.state.assignedOnDate,
+            relatedNonconformities:this.state.relatedNonconformities, 
+            correctiveAction:this.state.correctiveAction, 
+            informedImplementedAction:this.state.informedImplementedAction, 
+            relatedCustomerComplaints:this.state.relatedCustomerComplaints,
+            implementationDeadlineDate:this.state.implementationDeadlineDate,
+            reviewedOnDate:this.state.reviewedOnDate,
+            dateStamp:this.state.dateStamp
+          }
+        axios.post(this.state.api_base_url +"addCorrectiveAction/" +this.state.simpleSelect2 + "/" + this.state.simpleSelect, corrective_action).then((res)=>{
+            alert("succes")
+        })
+    }
+    
+  
+    render(){
+        const { classes } = this.props;
+        const data =[{"name":"test1"},{"name":"test2"}];
+        const listItems = data.map((d) =><Card> <div key={d.name}>{d.name}</div></Card>);
+
+        const assigned_list=this.state.assignedList.map((item)=>
+            <MenuItem
+            value={item.value}
+            classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} 
+ >
+            {item.label}
+           </MenuItem>
+        );
+
+        const reviewer_list=this.state.reviewrList.map((item)=>
+        <MenuItem
+        value={item.value}
+        classes={{ root: classes.selectMenuItem, selected: classes.selectMenuItemSelected}} >  
+        {item.label}
+       </MenuItem>
+    );
+        return(<div>
+            <NavPills color="warning" 
+            tabs={[
+                {
+                    tabButton:"Corrective actions",
+                    tabContent:(<div>
+                        <GridContainer>
+                        
+                             <GridItem xs={12} sm={12} md={6}>
+                                 <Card>
+                                     <CardBody>
+                                         <form>
+                                            <div>{listItems }</div>
+                                             <Card><div>Corrective Action sample number one</div></Card>
+                                             <Card><div>Corrective Action sample number two</div></Card>
+                                             <Card><div>Corrective Action sample number one</div></Card>
+                                             <Card><div>Corrective Action sample number one</div></Card>
+                                         
+                                         </form>
+                                    </CardBody>
+                                 </Card>
+                             </GridItem>
+                            <GridItem xs={12} sm={12} md={6}>
+                                <Card>
+                                    <CardBody>
+                                        <form>
+                                            <GridContainer>
+                                                <GridItem >
+                                                    <FormLabel className={classes.labelHorizontal}>Corrective action sample number two </FormLabel>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6} md={3} lg={3}>
+                                                <FormLabel className={classes.labelHorizontal}>Status</FormLabel>
+                                                </GridItem>
+                                                <GridItem xs={12} sm={6} md={9} lg={9}>
+                                                <CustomInput id="status" formControlProps={{fullWidth: true,value:this.state.status,onChange:this.Change}} inputProps={{type:"text",name:"status"}}/>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12}  sm={6}  md={3} lg={3}>
+                                                <FormLabel className={classes.labelHorizontal}>Assigned to</FormLabel>
+                                                </GridItem>
+                                                <GridItem xs={12}  sm={6} md={3}>
+                                                
+                                                <FormControl
+                                                            fullWidth
+                                                            className={classes.selectFormControl}>
+                                                            <InputLabel
+                                                                htmlFor="simple-select" className={classes.selectLabel}>choose 
+                                                                </InputLabel>
+                                                                <Select
+                                                                 MenuProps={{ className: classes.selectMenu }}
+                                                                 classes={{select: classes.select}}
+                                                                 value={this.state.simpleSelect}
+                                                                 onChange={this.handleSimple}       
+                                                                  inputProps={{
+                                                                    name: "simpleSelect",
+                                                                    id: "select"
+                                                                   }}  
+                                                                 
+                                                                  >    
+                                                                {assigned_list}
+                                                            </Select>
+                                                        </FormControl>
+
+                                                </GridItem>
+                                                <GridItem xs={12}  sm={6} md={3} lg={3}>
+                                                <FormLabel className={classes.labelHorizontal}>Assigned on</FormLabel>
+                                                </GridItem>
+                                                <GridItem xs={12}  sm={6} md={3} lg={3}>
+                                                <FormLabel className={classes.labelHorizontal}>Date</FormLabel>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12}  sm={6} md={3} >
+                                                <FormLabel className={classes.labelHorizontal}>Related nonconformities</FormLabel>
+                                                </GridItem>
+                                                <GridItem xs={12} sm={6} md={9} >    
+                                                <CustomInput id="Related_nonconformities" formControlProps={{fullWidth: true,value:this.state.relatedNonconformities,onChange:this.Change}} inputProps={{type:"text",name:"relatedNonconformities"}}/>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem>
+                                                <FormLabel className={classes.labelHorizontal}>Corrective action to be implemented</FormLabel>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6} lg={6}>
+                                                    <textarea value={this.state.correctiveAction} onChange={this.Change} name="correctiveAction"></textarea>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={5}>
+                                                <FormLabel className={classes.labelHorizontal}>Who must be informed about the implemented action</FormLabel>
+                                                </GridItem>
+                                                <GridItem xs={12} sm={7} >
+                                                <CustomInput id="informedImplementedAction" formControlProps={{fullWidth: true,value:this.state.informedImplementedAction,onChange:this.Change}} inputProps={{type:"text",name:"informedImplementedAction"}}/>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={5}>
+                                                <FormLabel className={classes.labelHorizontal}>Related customer complaints</FormLabel>
+                                                </GridItem>
+                                                <GridItem xs={12} sm={7}>
+                                                <CustomInput id="relatedCustomerComplaints" formControlProps={{fullWidth: true,value:this.state.relatedCustomerComplaints,onChange:this.Change}} inputProps={{type:"text",name:"relatedCustomerComplaints"}}/>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={6}>
+                                                <FormLabel className={classes.labelHorizontal}>Implementation deadline</FormLabel>
+                                                </GridItem>
+                                                <GridItem xs={12} sm={6}>
+                                                <FormLabel className={classes.labelHorizontal}>Date</FormLabel>
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} sm={3} lg={3}>   
+                                                <FormLabel className={classes.labelHorizontal}>Reviewer </FormLabel>   
+                                                </GridItem>
+                                                <GridItem xs={12} sm={3} lg={3}> 
+                                                
+
+                                                <FormControl
+                                                            fullWidth
+                                                            className={classes.selectFormControl}>
+                                                            <InputLabel
+                                                                htmlFor="simple-select" className={classes.selectLabel}>choose 
+                                                                </InputLabel>
+                                                                <Select
+                                                                MenuProps={{ className: classes.selectMenu }}
+                                                                classes={{select: classes.select}}
+                                                                value={this.state.simpleSelect2}
+                                                                onChange={this.handleSimple}
+                                                                inputProps={{name: "simpleSelect2",id: "status_select" }} >
+                                                                <MenuItem  disabled classes={{ root: classes.selectMenuItem }} ></MenuItem>
+                                                                {reviewer_list}
+                                                            </Select>
+                                                        </FormControl>
+                                                <FormLabel className={classes.labelHorizontal}>Reviewer </FormLabel>     
+                                                </GridItem>
+                                                <GridItem xs={12} sm={3} lg={3}>  
+
+                                                <FormLabel className={classes.labelHorizontal}>Reviewer on</FormLabel>    
+                                                </GridItem>
+                                                <GridItem xs={12} sm={3} lg={3}> 
+                                                <FormLabel className={classes.labelHorizontal}>Date</FormLabel>     
+                                                </GridItem>
+                                            </GridContainer>
+                                            <GridContainer>
+                                                <GridItem xs={12} lg={3}>
+                                                <FormLabel className={classes.labelHorizontal}>Attachments</FormLabel> 
+                                                <input type="file"  name="file"  onChange={this.onFileChangeHandler}/>
+                                                </GridItem>
+    
+                                            </GridContainer>
+                                            <br>
+                                            </br>
+                                            <Button color="primary" onClick={()=>this.addCorrectiveAction()} className={classes.marginRight}>Add Corrective Action</Button>
+                                        </form>
+                                    </CardBody>
+                                </Card>
+                            </GridItem>
+                        </GridContainer>
+                    </div>)
+                },
+                {
+                    tabButton:"Files",
+                    tabContent:(<div>
+                         <input type="file" className="form-control" name="file" multiple onChange={this.onFileChangeHandler}/>
+                        <Button color="primary" onClick={()=>this.newFolder()} className={classes.marginRight}>New Folder</Button>
+
+                    </div>)
+                },
+                {
+                    tabButton:"Notes",
+                    tabContent:(<div>
+                         <Button color="primary" onClick={()=>this.addItem()} className={classes.marginRight}>Add Item</Button>
+                           <Button color="primary" onClick={()=>this.newNote()} className={classes.marginRight}>New Note</Button>
+                      
+                    </div>)
+                },
+                {
+                    tabButton:"Settings",
+                    tabContent:(<div>
+                           
+                    </div>)
+                }
+            ]}/>
+
+           
+        </div>)
+    }
+
+}
+export default withStyles(styless)(CorrectiveActions)
+=================================================================================================================
+PoliciesAndProcedures 
+ProgramInitiation 
+MandatoryClause 
+AuditeeComplaints
+SecurityControl  
+Nonconformities 
+CorrectiveActions 
+
+var dashRoutes = [
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    rtlName: "لوحة القيادة",
+    icon: DashboardIcon,
+    component: Dashboard,
+    layout: "/admin"
+  },
+
+ {
+   collapse: true,
+  name: "Objectives",
+  rtlName: "صفات",
+  icon: Image,
+  state: "objectiveCollapse",
+  views: [
+      {
+        path: "/policiesandprocedures",
+        name: "Policies And Procedures",
+        rtlName: "لوحة القيادة",
+        mini: "PP",
+        rtlMini: "ع",
+        component: PoliciesAndProcedures,
+        layout: "/admin"
+    }
+  ]
+},
+{
+  collapse: true,
+  name: "Audit Program",
+  rtlName: "حات",
+  icon: Image,
+  state: "auditCollapse",
+  views: [
+  {
+    path: "/programinitiation",
+    name: "Program Initiation",
+    rtlName: "ل",
+    component: ProgramInitiation,
+    layout: "/admin"
+  },
+  {
+    path: "/mandatoryclause",
+    name: "Mandatory Clause",
+    rtlName: "لة",
+    component: MandatoryClause,
+    layout: "/admin"
+  },
+  {
+    path: "/securitycontrol",
+    name: "Security Control",
+    rtlName: "القيادة",
+    component: SecurityControl,
+    layout: "/admin"
+  }]
+},
+{
+  collapse: true,
+  name: "Compliance",
+  rtlName: "صفحات",
+  icon: Image,
+  state: "complianceCollapse",
+  views: [
+  {
+    path: "/auditeecomplaints",
+    name: "Auditee Complaints",
+    rtlName: " القيادة",
+    component: AuditeeComplaints,
+    layout: "/admin"
+  },
+  {
+    path: "/nonconformities",
+    name: "Nonconformities",
+    rtlName: "ل القيادة",
+    component: Nonconformities,
+    layout: "/admin"
+  },
+  {
+    path: "/correctiveactions",
+    name: "Corrective Actions",
+    rtlName: " القيادة",
+    component: CorrectiveActions,
+    layout: "/admin"
+  }
+]
+======
+https://stackoverflow.com/questions/55081980/how-to-render-an-element-in-a-matrix-in-react
+https://stackoverflow.com/questions/52190172/display-multi-dimensional-arrays-matrix-using-react
+https://www.reddit.com/r/reactjs/comments/6lrhas/how_do_i_create_an_object_inside_an_object/
+
+======================================================================================================================
+const list_mandatory = this.state.array_parent.map((parent)=>
+            <Card>
+                <Collapsible trigger={parent.parentName}>
+                { parent.myChildren.map((child, i)=>
+                <div>{
+                                                arrayy.push({value:child.id, requirement:child.requirement, 
+                                                clauses:child.clauses,testingSteps:child.testingSteps,
+                                                complaint:child.complaint,evidence:child.evidence,
+                                                reference:child.reference,actions:(
+                                                    <Button color="primary" onClick={() => this.updateItem(child.id,child.requirement,this.state.reference,this.state.evidence,this.state.simpleSelect, child.testingSteps )} >
+                                                        Update item</Button>
+                                                )
+                                            })
+                                                         
+
+                 }
+                                        
+                { 
+                        <ReactTable
+                        data={arrayy}
+                        filterable
+                        columns={[
+                            {
+                                Header: "Requirement",
+                                accessor: "requirement"
+                            },
+                            {
+                                Header: "Clause",
+                                accessor: "clauses"
+                            },
+                            {
+                                Header: "Testing Steps",
+                                accessor: "testingSteps"
+                            },
+                            {
+                                Header: "Compliant",
+                                accessor: "complaint"
+                            },
+                            {
+                                Header: "Evidence",
+                                accessor: "evidence"
+                            },
+                            {
+                                Header: "Reference",
+                                accessor: "reference"
+                            },
+                            {
+                                 
+                                Header: "Actions",
+                                accessor: "actions",
+                                sortable: false,
+                                filterable: false
+                              }
+         
+                            ]}
+                            // defaultPageSize={10}
+                            // showPaginationTop
+                            // showPaginationBottom={false}
+                             className="-striped -highlight"
+                            />
+                       
+                          }  </div> )   
+                     
+                    //     <table style={{"width":"100%"}}>
+                    //    { parent.myChildren.map((child)=>                          
+                    //             <tr onClick={() => this.displayContent(child.id)}>
+                    //     <td>{child.requirement}</td>
+                    //     <td>{child.clauses}</td>
+                    //     <td>{child.testingSteps}</td>
+                    //     <td>{child.complaint}
+                    //     <FormControl
+                    //          fullWidth
+                    //          className={classes.selectFormControl}>
+                    //          <InputLabel
+                    //          htmlFor="simple-select" className={classes.selectLabel}>
+                    //          </InputLabel>
+                    //              <Select
+                    //              MenuProps={{ className: classes.selectMenu}}
+                    //              classes={{select: classes.select }}
+                    //              value={this.state.simpleSelect}
+                    //              onChange={this.handleSimple}
+                    //              inputProps={{ name: "complaintSelect", id: "complaintSelect"}} >
+                    //             <MenuItem  value="true"  classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}}> Yes</MenuItem>
+                    //             <MenuItem  value="false"  classes={{ root: classes.selectMenuItem,selected: classes.selectMenuItemSelected}} > No</MenuItem>                                     
+                    //             </Select>
+                    //     </FormControl>
+                    //     </td>
+                    //     <td>
+                    //     <CustomInput  id="evidence"
+                    //         formControlProps={{
+                    //         fullWidth: true,
+                    //         value:this.state.evidence, //also we can write it as value="this.state.evidence"
+                    //         onChange:this.handleChange,}}
+                    //         inputProps={{type: "text", name: "evidence"}}                                                                        
+                    //     />
+                    //     </td>
+                    //     <td>
+                    //     <CustomInput  id="reference"
+                    //         formControlProps={{
+                    //         fullWidth: true,
+                    //         value:this.state.reference, //also we can write it as value="this.state.date"
+                    //         onChange:this.handleChange,}}
+                    //         inputProps={{type: "text", name: "reference" }}                                                                          
+                    //     />
+                    //     </td>
+                    //     <td>
+                    //     <Button color="primary" onClick={() => this.updateItem(child.id,child.requirement,this.state.reference,this.state.evidence,this.state.simpleSelect, child.testingSteps
+                    //         )} className={classes.marginRight}>Update item</Button> 
+                    //     </td>
+                    //     </tr>               
+                    //     )
+                    // }
+                    //     </table>
+               
+                }
+                   
+                </Collapsible>
+            </Card>
+        )
+===========================================================================
+ refreshList(object){
+        let array=[]
+        array.push(object)
+        this.state.CorrectiveActionList.map((item)=>{
+            array.push(item)
+        })
+        this.setState({
+            CorrectiveActionList:array
+        })
+    }
+
+
+-------------------
+  this.refreshList =this.refreshList.bind(this)
+--------------------
+   deleteCorrectiveAction(){
+        console.log(this.state.id)
+        axios.delete(this.state.api_base_url + "delete/" + this.state.id).then((response)=>{
+            alert("Successfully deleted !!!")
+        })
+        let array= []
+        this.state.CorrectiveActionList.map((item)=>{
+            array.push(item)
+        })
+        array.splice(this.state.corrective_index, 1)
+        this.setState({
+            CorrectiveActionList:array
+        })
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
